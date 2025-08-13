@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brew Master - Coffee Shop Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2c1810 0%, #6b4423 50%, #a67c5a 100%);
+            color: #f4f1eb;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(139, 69, 19, 0.9);
+            padding: 25px;
+            border-radius: 20px;
+            border: 3px solid #d4af37;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
+        }
+
+        .header h1 {
+            font-size: 3em;
+            color: #d4af37;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+        }
+
+        .header .tagline {
+            font-size: 1.3em;
+            color: #f4e4bc;
+            font-style: italic;
+        }
+
+        .tutorial-panel {
+            background: rgba(139, 69, 19, 0.9);
+            border: 3px solid #d4af37;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .tutorial-panel h3 {
+            color: #d4af37;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .tutorial-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .tutorial-step {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #8b4513;
+        }
+
+        .tutorial-step h4 {
+            color: #d4af37;
+            margin-bottom: 10px;
+        }
+
+        .demo-customer {
+            background: linear-gradient(135deg, #f4e4bc 0%, #e6d7b3 100%);
+            color: #2c1810;
+            border: 2px solid #d4af37;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px auto;
+            max-width: 200px;
+            position: relative;
+            font-weight: bold;
+        }
+
+        .demo-station {
+            background: #8b4513;
+            border: 2px solid #a0522d;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px auto;
+            max-width: 200px;
+            text-align: center;
+        }
+
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%);
+            color: #2c1810;
+            border: 2px solid #d4af37;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+            color: #f4e4bc;
+            border: 2px solid #8b4513;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(139, 69, 19, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .game-area {
+            display: none;
+        }
+
+        .game-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(139, 69, 19, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #8b4513;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #d4af37;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .timer-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .timer {
+            font-size: 3em;
+            font-weight: bold;
+            color: #d4af37;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .timer.paused {
+            color: #ffd43b;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .panel {
+            background: rgba(139, 69, 19, 0.9);
+            border: 3px solid #8b4513;
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .panel h3 {
+            color: #d4af37;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .customer-queue {
+            min-height: 300px;
+            border: 3px dashed #d4af37;
+            border-radius: 10px;
+            padding: 15px;
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        .customer-card {
+            background: linear-gradient(135deg, #f4e4bc 0%, #e6d7b3 100%);
+            color: #2c1810;
+            border: 3px solid #d4af37;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            font-weight: bold;
+            font-size: 1.1em;
+            user-select: none;
+        }
+
+        .customer-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            border-color: #ffff00;
+        }
+
+        .customer-card.selected {
+            background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%);
+            color: #fff;
+            border-color: #ffff00;
+            transform: scale(1.08);
+            box-shadow: 0 0 25px rgba(255, 255, 0, 0.5);
+        }
+
+        .complexity-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #2c1810;
+            color: #d4af37;
+            border-radius: 15px;
+            width: auto;
+            height: 25px;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 10px;
+            font-weight: bold;
+        }
+
+        .patience-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .patience-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .coffee-shop {
+            min-height: 400px;
+            background: linear-gradient(180deg, #4a4a4a 0%, #2a2a2a 100%);
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #666;
+        }
+
+        .barista-station {
+            background: #8b4513;
+            border: 3px solid #a0522d;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            user-select: none;
+        }
+
+        .barista-station:hover {
+            background: #a0522d;
+            transform: scale(1.02);
+            border-color: #d4af37;
+        }
+
+        .barista-station.selected {
+            border-color: #ffff00;
+            background: #a0522d;
+            box-shadow: 0 0 25px rgba(255, 255, 0, 0.4);
+            transform: scale(1.05);
+        }
+
+        .barista-station.working {
+            border-color: #51cf66;
+            box-shadow: 0 0 20px rgba(81, 207, 102, 0.4);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 15px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #d4af37, #f4e4bc);
+            border-radius: 8px;
+            transition: width 0.3s ease;
+        }
+
+        .instruction-banner {
+            background: rgba(255, 255, 0, 0.9);
+            color: #2c1810;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 2px solid #d4af37;
+        }
+
+        .game-log {
+            height: 200px;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.7);
+            border: 2px solid #8b4513;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 1em;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .log-success { background: rgba(81, 207, 102, 0.2); color: #51cf66; }
+        .log-warning { background: rgba(255, 212, 59, 0.2); color: #ffd43b; }
+        .log-error { background: rgba(255, 107, 107, 0.2); color: #ff6b6b; }
+        .log-info { background: rgba(100, 200, 255, 0.2); color: #64c8ff; }
+
+        .game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .game-over-content {
+            background: linear-gradient(135deg, #2c1810 0%, #8b4513 100%);
+            padding: 40px;
+            border-radius: 20px;
+            border: 3px solid #d4af37;
+            text-align: center;
+            max-width: 500px;
+        }
+
+        .final-score {
+            font-size: 3em;
+            color: #d4af37;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .difficulty-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .difficulty-btn {
+            padding: 10px 20px;
+            border: 2px solid #8b4513;
+            border-radius: 8px;
+            background: rgba(139, 69, 19, 0.8);
+            color: #f4e4bc;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .difficulty-btn.selected {
+            border-color: #d4af37;
+            background: rgba(212, 175, 55, 0.3);
+            color: #d4af37;
+        }
+
+        .difficulty-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .highlight-hint {
+            animation: highlight 2s infinite;
+        }
+
+        @keyframes highlight {
+            0%, 100% { box-shadow: 0 0 5px rgba(212, 175, 55, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(212, 175, 55, 0.8); }
+        }
+
+        @media (max-width: 768px) {
+            .game-board {
+                grid-template-columns: 1fr;
+            }
+            
+            .game-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>☕ BREW MASTER ☕</h1>
+            <p class="tagline">"Master the Art of Coffee Shop Management"</p>
+        </div>
+
+        <!-- Tutorial Section -->
+        <div class="tutorial-panel" id="tutorialPanel">
+            <h3>🎯 Learn to Play - It's Easy!</h3>
+            
+            <div class="tutorial-steps">
+                <div class="tutorial-step">
+                    <h4>Step 1: See Customers</h4>
+                    <div class="demo-customer">
+                        <div class="complexity-badge">⭐</div>
+                        <strong>☕ Alex</strong>
+                        <div>Black Coffee</div>
+                        <div style="font-size: 0.8em; font-style: italic;">Just pour & serve</div>
+                    </div>
+                    <p>Customers show their drink type and complexity (⭐ = simple, ⭐⭐⭐ = complex)</p>
+                </div>
+
+                <div class="tutorial-step">
+                    <h4>Step 2: Click Customer</h4>
+                    <p>👆 <strong>Click a customer</strong> to select them (they'll glow yellow)</p>
+                </div>
+
+                <div class="tutorial-step">
+                    <h4>Step 3: Click Station</h4>
+                    <div class="demo-station">
+                        <strong>Station A "Quick Serve"</strong>
+                        <div>⭐ Best for Simple drinks</div>
+                    </div>
+                    <p>👆 <strong>Click the matching station</strong> to send them there</p>
+                </div>
+
+                <div class="tutorial-step">
+                    <h4>Step 4: Watch & Score!</h4>
+                    <p>Perfect matches = faster service + bonus points!</p>
+                    <p>Wrong matches = slower service + angry customers</p>
+                </div>
+            </div>
+
+            <div class="difficulty-selector">
+                <div class="difficulty-btn selected" onclick="selectDifficulty('easy')" data-difficulty="easy">
+                    <strong>😌 Chill Mode</strong><br>
+                    <small>Slow pace, patient customers</small>
+                </div>
+                <div class="difficulty-btn" onclick="selectDifficulty('normal')" data-difficulty="normal">
+                    <strong>☕ Normal Rush</strong><br>
+                    <small>Balanced challenge</small>
+                </div>
+                <div class="difficulty-btn" onclick="selectDifficulty('hard')" data-difficulty="hard">
+                    <strong>🔥 Coffee Crisis</strong><br>
+                    <small>Fast pace, impatient customers</small>
+                </div>
+            </div>
+
+            <div class="game-controls">
+                <button class="btn btn-primary" onclick="startTutorial()">🎓 Practice Round</button>
+                <button class="btn btn-secondary" onclick="startGame()">🚀 Start Game</button>
+            </div>
+        </div>
+
+        <!-- Game Area -->
+        <div class="game-area" id="gameArea">
+            <div class="instruction-banner" id="instructionBanner">
+                👆 Click a customer, then click a station to serve them!
+            </div>
+
+            <div class="timer-container">
+                <div class="timer" id="gameTimer">5:00</div>
+                <div>Time Remaining</div>
+                <div class="game-controls">
+                    <button class="btn btn-secondary" onclick="pauseGame()" id="pauseBtn">⏸️ Pause</button>
+                    <button class="btn btn-primary" onclick="endGameEarly()" id="finishBtn">🏁 Finish</button>
+                </div>
+            </div>
+
+            <div class="game-stats">
+                <div class="stat-card">
+                    <span class="stat-value" id="score">0</span>
+                    <div class="stat-label">Score</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="served">0</span>
+                    <div class="stat-label">Served</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="combo">0</span>
+                    <div class="stat-label">Combo</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="efficiency">100%</span>
+                    <div class="stat-label">Efficiency</div>
+                </div>
+            </div>
+
+            <div class="game-board">
+                <div class="panel">
+                    <h3>👥 Customer Queue</h3>
+                    <div class="customer-queue" id="customerQueue"></div>
+                </div>
+
+                <div class="panel">
+                    <h3>☕ Coffee Shop</h3>
+                    <div class="coffee-shop">
+                        <div class="barista-station" data-station="0" onclick="selectStation(0)">
+                            <strong>🧑‍🍳 Station A - "Quick Serve"</strong>
+                            <div>⭐ Best for: Simple drinks (Black Coffee, Americano)</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress0" style="width: 0%"></div>
+                            </div>
+                            <div id="current0">Ready for orders</div>
+                        </div>
+                        
+                        <div class="barista-station" data-station="1" onclick="selectStation(1)">
+                            <strong>👩‍🍳 Station B - "Milk Master"</strong>
+                            <div>⭐⭐ Best for: Medium drinks (Cappuccino, Latte)</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress1" style="width: 0%"></div>
+                            </div>
+                            <div id="current1">Ready for orders</div>
+                        </div>
+                        
+                        <div class="barista-station" data-station="2" onclick="selectStation(2)">
+                            <strong>🤖 Station C - "Specialty Pro"</strong>
+                            <div>⭐⭐⭐ Best for: Complex drinks (Frappuccino, Specialties)</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress2" style="width: 0%"></div>
+                            </div>
+                            <div id="current2">Ready for orders</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>📜 Activity Log</h3>
+                <div class="game-log" id="gameLog"></div>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div class="game-over" id="gameOverScreen">
+            <div class="game-over-content">
+                <h2>🎉 Round Complete! 🎉</h2>
+                <div style="font-size: 2em; margin: 20px 0;">☕</div>
+                <div class="final-score" id="finalScore">0</div>
+                <div id="gameOverStats"></div>
+                <div class="game-controls">
+                    <button class="btn btn-primary" onclick="resetGame()">☕ Play Again</button>
+                    <button class="btn btn-secondary" onclick="showTutorial()">📚 Back to Tutorial</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            score: 0,
+            timeLeft: 300, // 5 minutes
+            served: 0,
+            combo: 0,
+            efficiency: 100,
+            selectedStation: null,
+            selectedCustomer: null,
+            customers: [],
+            stations: [
+                { id: 0, busy: false, progress: 0, current: null, specialty: 1 },
+                { id: 1, busy: false, progress: 0, current: null, specialty: 2 },
+                { id: 2, busy: false, progress: 0, current: null, specialty: 3 }
+            ],
+            gameRunning: false,
+            paused: false,
+            difficulty: 'easy',
+            isTutorial: false,
+            tutorialStep: 0,
+            customerIdCounter: 1 // Simple counter for IDs
+        };
+
+        const drinkTypes = [
+            { name: "Black Coffee", complexity: 1, baseTime: 3000, description: "Just pour & serve", icon: "☕" },
+            { name: "Americano", complexity: 1, baseTime: 3500, description: "Espresso + hot water", icon: "☕" },
+            { name: "Cappuccino", complexity: 2, baseTime: 4000, description: "Espresso + steamed milk", icon: "🥛" },
+            { name: "Latte", complexity: 2, baseTime: 4500, description: "Espresso + lots of milk", icon: "🥛" },
+            { name: "Frappuccino", complexity: 3, baseTime: 5500, description: "Blended ice drink", icon: "🧊" },
+            { name: "Caramel Macchiato", complexity: 3, baseTime: 6000, description: "Layered specialty drink", icon: "🍯" }
+        ];
+
+        const customerNames = ["Alex", "Sam", "Jordan", "Casey", "Taylor", "Morgan", "Quinn", "Riley", "Avery", "Blake"];
+
+        const difficultySettings = {
+            easy: { customerPatience: 45, spawnRate: 5000, timeLimit: 300 },
+            normal: { customerPatience: 30, spawnRate: 3500, timeLimit: 300 },
+            hard: { customerPatience: 20, spawnRate: 2500, timeLimit: 300 }
+        };
+
+        function selectDifficulty(difficulty) {
+            gameState.difficulty = difficulty;
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            document.querySelector(`[data-difficulty="${difficulty}"]`).classList.add('selected');
+            addLog(`Selected ${difficulty} difficulty`, 'info');
+        }
+
+        function startTutorial() {
+            gameState.isTutorial = true;
+            gameState.difficulty = 'easy';
+            startGame();
+        }
+
+        function startGame() {
+            document.getElementById('tutorialPanel').style.display = 'none';
+            document.getElementById('gameArea').style.display = 'block';
+            
+            const settings = difficultySettings[gameState.difficulty];
+            gameState = {
+                ...gameState,
+                score: 0,
+                timeLeft: settings.timeLimit,
+                served: 0,
+                combo: 0,
+                efficiency: 100,
+                selectedStation: null,
+                selectedCustomer: null,
+                customers: [],
+                stations: [
+                    { id: 0, busy: false, progress: 0, current: null, specialty: 1 },
+                    { id: 1, busy: false, progress: 0, current: null, specialty: 2 },
+                    { id: 2, busy: false, progress: 0, current: null, specialty: 3 }
+                ],
+                gameRunning: true,
+                paused: false,
+                customerIdCounter: 1
+            };
+            
+            // Start with 2 customers for easier beginning
+            generateCustomer();
+            generateCustomer();
+            
+            updateDisplay();
+            addLog('Game started! Click customers then click stations to serve them.', 'success');
+            
+            if (gameState.isTutorial) {
+                addLog('TUTORIAL: Try serving your first customer! Click them, then click a matching station.', 'info');
+            }
+            
+            gameLoop();
+            customerGenerator();
+        }
+
+        function generateCustomer() {
+            // Don't generate too many customers
+            if (gameState.customers.length >= 6) return;
+            
+            const drink = drinkTypes[Math.floor(Math.random() * drinkTypes.length)];
+            const name = customerNames[Math.floor(Math.random() * customerNames.length)];
+            const settings = difficultySettings[gameState.difficulty];
+            
+            const customer = {
+                id: gameState.customerIdCounter++, // Use simple counter instead of timestamp
+                name: name,
+                drink: drink.name,
+                complexity: drink.complexity,
+                baseTime: drink.baseTime,
+                description: drink.description,
+                icon: drink.icon,
+                patience: settings.customerPatience + Math.random() * 15,
+                maxPatience: settings.customerPatience + 15,
+                timeWaiting: 0
+            };
+            
+            gameState.customers.push(customer);
+            renderCustomers();
+            
+            if (gameState.customers.length === 1) {
+                addLog(`${name} arrives wanting ${drink.name}`, 'info');
+            }
+        }
+
+        function renderCustomers() {
+            const queue = document.getElementById('customerQueue');
+            if (gameState.customers.length === 0) {
+                queue.innerHTML = '<div style="text-align: center; color: #d4af37; padding: 40px; font-style: italic;">No customers waiting... they\'ll arrive soon!</div>';
+                return;
+            }
+            
+            queue.innerHTML = gameState.customers.map(customer => {
+                const patiencePercent = Math.max(0, (customer.patience / customer.maxPatience) * 100);
+                const starsDisplay = '⭐'.repeat(customer.complexity);
+                const isSelected = gameState.selectedCustomer === customer.id;
+                
+                return `
+                    <div class="customer-card ${isSelected ? 'selected' : ''}" 
+                         onclick="selectCustomer(${customer.id})" data-customer-id="${customer.id}">
+                        <div class="complexity-badge">${starsDisplay}</div>
+                        <strong>${customer.icon} ${customer.name}</strong>
+                        <div class="order-type" style="font-weight: bold; margin: 5px 0;">${customer.drink}</div>
+                        <div class="order-type" style="font-size: 0.9em; font-style: italic; opacity: 0.8;">${customer.description}</div>
+                        <div class="patience-bar">
+                            <div class="patience-fill" style="width: ${patiencePercent}%; 
+                                 background: ${patiencePercent > 60 ? '#51cf66' : patiencePercent > 30 ? '#ffd43b' : '#ff6b6b'}"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function selectCustomer(customerId) {
+            console.log('Customer clicked:', customerId); // Debug log
+            
+            // Clear previous selections
+            gameState.selectedStation = null;
+            gameState.selectedCustomer = customerId;
+            
+            const customer = gameState.customers.find(c => c.id === customerId);
+            if (!customer) {
+                console.log('Customer not found:', customerId); // Debug log
+                gameState.selectedCustomer = null;
+                renderCustomers();
+                return;
+            }
+            
+            renderCustomers();
+            updateStationDisplay();
+            
+            addLog(`Selected ${customer.name} (wants ${customer.drink})`, 'info');
+            
+            // Update instruction banner
+            const banner = document.getElementById('instructionBanner');
+            const starsDisplay = '⭐'.repeat(customer.complexity);
+            banner.innerHTML = `Now click Station ${customer.complexity === 1 ? 'A' : customer.complexity === 2 ? 'B' : 'C'} to serve ${customer.name}'s ${starsDisplay} ${customer.drink}!`;
+            
+            // Highlight the correct station
+            document.querySelectorAll('.barista-station').forEach(station => {
+                station.classList.remove('highlight-hint');
+            });
+            const correctStation = customer.complexity - 1;
+            if (!gameState.stations[correctStation].busy) {
+                document.querySelector(`[data-station="${correctStation}"]`).classList.add('highlight-hint');
+            }
+        }
+
+        function selectStation(stationId) {
+            console.log('Station clicked:', stationId); // Debug log
+            
+            if (gameState.stations[stationId].busy) {
+                addLog(`Station ${String.fromCharCode(65 + stationId)} is busy! Try another station.`, 'warning');
+                return;
+            }
+            
+            if (!gameState.selectedCustomer) {
+                addLog(`Select a customer first, then click a station!`, 'warning');
+                return;
+            }
+            
+            gameState.selectedStation = stationId;
+            assignCustomerToStation();
+        }
+
+        function assignCustomerToStation() {
+            if (!gameState.selectedCustomer || gameState.selectedStation === null) return;
+            
+            const customer = gameState.customers.find(c => c.id === gameState.selectedCustomer);
+            const station = gameState.stations[gameState.selectedStation];
+            
+            if (!customer || station.busy) {
+                // Customer might have left or station is busy
+                gameState.selectedCustomer = null;
+                gameState.selectedStation = null;
+                renderCustomers();
+                updateStationDisplay();
+                return;
+            }
+            
+            // Calculate efficiency bonus/penalty
+            const complexityMatch = customer.complexity === (station.specialty);
+            const timeMultiplier = complexityMatch ? 0.7 : 1.4; // Bigger difference for clarity
+            
+            station.busy = true;
+            station.current = customer;
+            station.progress = 0;
+            station.totalTime = customer.baseTime * timeMultiplier;
+            
+            // Remove customer from queue
+            gameState.customers = gameState.customers.filter(c => c.id !== customer.id);
+            
+            // Feedback
+            if (complexityMatch) {
+                gameState.combo++;
+                const bonusPoints = 5 * gameState.combo;
+                gameState.score += bonusPoints;
+                addLog(`Perfect match! ${customer.name} served quickly. +${bonusPoints} bonus points!`, 'success');
+            } else {
+                gameState.combo = 0;
+                gameState.efficiency = Math.max(70, gameState.efficiency - 3);
+                addLog(`Wrong station! ${customer.name}'s drink will take longer to make.`, 'warning');
+            }
+            
+            // Clear selections
+            gameState.selectedCustomer = null;
+            gameState.selectedStation = null;
+            
+            // Clear highlights
+            document.querySelectorAll('.barista-station').forEach(station => {
+                station.classList.remove('highlight-hint');
+            });
+            
+            // Update banner
+            const banner = document.getElementById('instructionBanner');
+            banner.innerHTML = gameState.customers.length > 0 ? 
+                '👆 Click a customer, then click a station to serve them!' :
+                '⏳ More customers arriving soon...';
+            
+            renderCustomers();
+            updateStationDisplay();
+            
+            // Start processing
+            processOrder(gameState.selectedStation || station.id);
+            updateDisplay();
+        }
+
+        function processOrder(stationId) {
+            const station = gameState.stations[stationId];
+            if (!station.busy || !station.current) return;
+            
+            const interval = setInterval(() => {
+                // Safety checks
+                if (gameState.paused || !gameState.gameRunning || !station.current) {
+                    clearInterval(interval);
+                    return;
+                }
+                
+                station.progress += 150; // Slower progress for visibility
+                
+                if (station.progress >= station.totalTime) {
+                    // Order complete
+                    clearInterval(interval);
+                    completeOrder(stationId);
+                }
+                
+                updateStationDisplay();
+            }, 100);
+        }
+
+        function completeOrder(stationId) {
+            const station = gameState.stations[stationId];
+            const customer = station.current;
+            
+            // Safety check - if no customer or game not running, just reset station
+            if (!customer || !gameState.gameRunning) {
+                station.busy = false;
+                station.current = null;
+                station.progress = 0;
+                updateStationDisplay();
+                return;
+            }
+            
+            let points = 15; // Base points increased
+            gameState.score += points;
+            gameState.served++;
+            gameState.efficiency = Math.min(100, gameState.efficiency + 1);
+            
+            addLog(`✅ Served ${customer.name}'s ${customer.drink}! +${points} points`, 'success');
+            
+            station.busy = false;
+            station.current = null;
+            station.progress = 0;
+            
+            updateStationDisplay();
+            updateDisplay();
+            
+            // Tutorial feedback
+            if (gameState.isTutorial && gameState.served === 1) {
+                addLog('Great job! Keep serving customers to build up your score and combo!', 'info');
+            }
+        }
+
+        function updateStationDisplay() {
+            gameState.stations.forEach((station, index) => {
+                const progressBar = document.getElementById(`progress${index}`);
+                const currentDiv = document.getElementById(`current${index}`);
+                const stationDiv = document.querySelector(`[data-station="${index}"]`);
+                
+                // Clear all classes first
+                stationDiv.classList.remove('selected', 'working');
+                
+                if (station.busy) {
+                    const progressPercent = (station.progress / station.totalTime) * 100;
+                    progressBar.style.width = `${Math.min(progressPercent, 100)}%`;
+                    currentDiv.textContent = `Making ${station.current.drink} for ${station.current.name}...`;
+                    stationDiv.classList.add('working');
+                } else {
+                    progressBar.style.width = '0%';
+                    currentDiv.textContent = 'Ready for orders';
+                    
+                    if (gameState.selectedStation === index) {
+                        stationDiv.classList.add('selected');
+                    }
+                }
+            });
+        }
+
+        function gameLoop() {
+            if (!gameState.gameRunning) return;
+            
+            const gameInterval = setInterval(() => {
+                if (!gameState.gameRunning) {
+                    clearInterval(gameInterval);
+                    return;
+                }
+                
+                if (gameState.paused) return;
+                
+                gameState.timeLeft--;
+                
+                // Update customer patience (slower decay)
+                gameState.customers.forEach((customer, index) => {
+                    customer.timeWaiting++;
+                    customer.patience -= 0.5; // Much slower patience decay
+                    
+                    if (customer.patience <= 0) {
+                        // Customer leaves - store info before removing
+                        const customerName = customer.name;
+                        const customerId = customer.id;
+                        
+                        // Remove customer from array
+                        gameState.customers = gameState.customers.filter(c => c.id !== customerId);
+                        gameState.combo = 0;
+                        gameState.efficiency = Math.max(50, gameState.efficiency - 5);
+                        addLog(`❌ ${customerName} left angry! Lost combo and efficiency.`, 'error');
+                        
+                        // Clear selection if this customer was selected
+                        if (gameState.selectedCustomer === customerId) {
+                            gameState.selectedCustomer = null;
+                            document.getElementById('instructionBanner').innerHTML = 
+                                gameState.customers.length > 0 ? 
+                                '👆 Click a customer, then click a station to serve them!' :
+                                '⏳ More customers arriving soon...';
+                        }
+                    }
+                });
+                
+                renderCustomers();
+                updateDisplay();
+                
+                if (gameState.timeLeft <= 0) {
+                    endGame();
+                    clearInterval(gameInterval);
+                }
+            }, 1000);
+        }
+
+        function customerGenerator() {
+            const settings = difficultySettings[gameState.difficulty];
+            
+            const genInterval = setInterval(() => {
+                if (!gameState.gameRunning) {
+                    clearInterval(genInterval);
+                    return;
+                }
+                
+                if (gameState.paused) return;
+                
+                // Generate customers more slowly and intelligently
+                const shouldGenerate = gameState.customers.length < 4 && Math.random() < 0.6;
+                if (shouldGenerate) {
+                    generateCustomer();
+                }
+            }, settings.spawnRate);
+        }
+
+        function updateDisplay() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('served').textContent = gameState.served;
+            document.getElementById('combo').textContent = gameState.combo;
+            document.getElementById('efficiency').textContent = Math.floor(gameState.efficiency) + '%';
+            
+            const minutes = Math.floor(gameState.timeLeft / 60);
+            const seconds = gameState.timeLeft % 60;
+            const timerDisplay = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            const timerElement = document.getElementById('gameTimer');
+            timerElement.textContent = timerDisplay;
+            
+            if (gameState.paused) {
+                timerElement.classList.add('paused');
+            } else {
+                timerElement.classList.remove('paused');
+            }
+        }
+
+        function pauseGame() {
+            gameState.paused = !gameState.paused;
+            const pauseBtn = document.getElementById('pauseBtn');
+            pauseBtn.textContent = gameState.paused ? '▶️ Resume' : '⏸️ Pause';
+            
+            if (gameState.paused) {
+                addLog('Game paused. Take your time!', 'info');
+                document.getElementById('instructionBanner').innerHTML = '⏸️ Game is paused. Click Resume to continue.';
+            } else {
+                addLog('Game resumed!', 'info');
+                document.getElementById('instructionBanner').innerHTML = '👆 Click a customer, then click a station to serve them!';
+            }
+        }
+
+        function endGameEarly() {
+            console.log('End game early clicked'); // Debug log
+            
+            // Instead of confirm dialog, just end the game directly
+            // Most players who click "Finish" intend to finish
+            addLog('Game ended early by player choice', 'info');
+            endGame();
+        }
+
+        function endGame() {
+            gameState.gameRunning = false;
+            
+            // Clear any ongoing station work to prevent errors
+            gameState.stations.forEach(station => {
+                station.busy = false;
+                station.current = null;
+                station.progress = 0;
+            });
+            
+            let grade = 'Coffee Newbie ☕';
+            let message = 'Keep practicing!';
+            
+            if (gameState.score >= 300) {
+                grade = 'Coffee Legend 🏆';
+                message = 'You\'re a master barista!';
+            } else if (gameState.score >= 200) {
+                grade = 'Coffee Master ⭐';
+                message = 'Excellent work!';
+            } else if (gameState.score >= 150) {
+                grade = 'Expert Barista 👨‍🍳';
+                message = 'Great job!';
+            } else if (gameState.score >= 100) {
+                grade = 'Skilled Barista 👍';
+                message = 'Well done!';
+            } else if (gameState.score >= 50) {
+                grade = 'Apprentice Barista 📚';
+                message = 'Getting the hang of it!';
+            }
+            
+            document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('gameOverStats').innerHTML = `
+                <h3>${grade}</h3>
+                <p style="font-style: italic; margin: 10px 0;">${message}</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; text-align: left;">
+                    <div>
+                        <strong>📊 Your Stats:</strong><br>
+                        Customers Served: ${gameState.served}<br>
+                        Best Combo: ${gameState.combo}<br>
+                        Final Efficiency: ${Math.floor(gameState.efficiency)}%
+                    </div>
+                    <div>
+                        <strong>☕ Performance:</strong><br>
+                        Points per Customer: ${gameState.served > 0 ? Math.round(gameState.score / gameState.served) : 0}<br>
+                        Difficulty: ${gameState.difficulty.charAt(0).toUpperCase() + gameState.difficulty.slice(1)}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('gameOverScreen').style.display = 'flex';
+        }
+
+        function resetGame() {
+            document.getElementById('gameOverScreen').style.display = 'none';
+            document.getElementById('gameArea').style.display = 'none';
+            document.getElementById('tutorialPanel').style.display = 'block';
+            
+            // Reset game state
+            gameState = {
+                score: 0,
+                timeLeft: 300,
+                served: 0,
+                combo: 0,
+                efficiency: 100,
+                selectedStation: null,
+                selectedCustomer: null,
+                customers: [],
+                stations: [
+                    { id: 0, busy: false, progress: 0, current: null, specialty: 1 },
+                    { id: 1, busy: false, progress: 0, current: null, specialty: 2 },
+                    { id: 2, busy: false, progress: 0, current: null, specialty: 3 }
+                ],
+                gameRunning: false,
+                paused: false,
+                difficulty: 'easy',
+                isTutorial: false,
+                tutorialStep: 0,
+                customerIdCounter: 1
+            };
+            
+            addLog('Welcome back! Ready for another round?', 'success');
+        }
+
+        function showTutorial() {
+            resetGame();
+        }
+
+        function addLog(message, type = 'success') {
+            const log = document.getElementById('gameLog');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.innerHTML = `<strong>[${new Date().toLocaleTimeString()}]</strong> ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+            
+            // Keep only last 15 entries
+            while (log.children.length > 15) {
+                log.removeChild(log.firstChild);
+            }
+        }
+
+        // Initialize game
+        window.onload = function() {
+            addLog('Welcome to Brew Master! Choose your difficulty and start playing!', 'success');
+            
+            // Auto-select easy difficulty
+            selectDifficulty('easy');
+        };
+    </script>
+</body>
+</html>
